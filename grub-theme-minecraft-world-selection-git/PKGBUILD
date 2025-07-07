@@ -1,4 +1,4 @@
-pkgname=minegrub-world-sel-theme-git
+pkgname=grub-theme-minegrub-world-selection-git
 pkgver=1.0.0
 pkgrel=1
 pkgdesc='A grub theme in the style of the Minecraft singleplayer (sp) world selection screen!'
