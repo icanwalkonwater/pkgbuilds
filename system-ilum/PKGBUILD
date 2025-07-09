@@ -1,0 +1,132 @@
+pkgbase=system-ilum
+pkgname=(system-ilum-base system-ilum-utils system-ilum-full)
+pkgver=1.0.0
+pkgrel=1
+
+pkgdesc='System configuration'
+url='https://github.com/icanwalkonwater/pkgbuilds'
+arch=('any')
+license=('MIT')
+
+source=()
+
+package_system-ilum-base() {
+  pkgdec='Base packages for ilum'
+  depends=(
+    # Needed to boot
+    'base'
+    'linux'
+    'linux-firmware'
+    'efibootmgr'
+    'btrfs-progs'
+    'grub'
+    'os-prober'
+    'grub-theme-minegrub-world-selection-git'
+    # Maintenance
+    'reflector'
+    'pacman-contrib'
+    'snapper'
+    'smartmontools'
+    # AUR
+    'base-devel'
+    'paru'
+    # Dotfiles
+    'stow'
+
+    # Drivers
+    'nvidia-open'
+    'nvidia-utils'
+    'intel-media-driver'
+    'intel-ucode'
+    'libva-nvidia-driver'
+    'libva-utils'
+    'vulkan-tools'
+
+    # Shell
+    'fish'
+    'nushell'
+    'man-db'
+    'man-pages'
+    'bat'
+    'git'
+    'neovim'
+    'htop'
+    'nvtop'
+    'openssh'
+    'fzf'
+    'ripgrep'
+    'starship'
+    'sudo'
+    'tree'
+    'zellij'
+    'fbset'
+    'fastfetch'
+    'lazygit'
+  )
+}
+
+package_system-ilum-utils() {
+  pkgdesc='Utility scripts for ilum'
+  depends=()
+}
+
+package_system-ilum-full() {
+  pkgdesc='Full desktop for ilum'
+  depends=(
+    'system-ilum-base'
+    'system-ilum-utils'
+
+    # Destkop setup
+    # Display Manager
+    'ly'
+    # Session Manager
+    'uwsm'
+    'libnewt'
+    # Window Manager & friends
+    'hyprland'
+    'hyprpolkitagent'
+    'hyprlock'
+    'hyprpaper'
+    'hyprsunset'
+    # Screenshot
+    'hyprshot'
+    'xdg-desktop-portal-hyprland'
+    'hyprpicker'
+    'qt5-wayland'
+    # Status bar
+    'waybar'
+    # Notification daemon
+    'dunst'
+    # Terminal emulator
+    'alacritty'
+    # Application launcher
+    'rofi-wayland'
+    # File manager
+    'ranger'
+    # Image viewer
+    'feh'
+
+    # Sound
+    'pipewire'
+    'wireplumber'
+    'pipewire-pulse'
+    'pavucontrol'
+
+    # Flatpak
+    'flatpak'
+
+    # Steam
+    'steam'
+    'lib32-nvidia-utils'
+    'lib32-systemd'
+
+    # Fonts
+    'ttf-jetbrains-mono-nerd'
+    'ttf-liberation'
+
+    # Bit random
+    'nwg-look'
+    'papirus-icon-theme'
+    'brightnessctl'
+  )
+}
