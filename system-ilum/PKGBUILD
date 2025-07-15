@@ -1,5 +1,5 @@
 pkgbase=system-ilum
-pkgname=(system-ilum-base system-ilum-utils system-ilum-full)
+pkgname=(system-ilum-skeleton system-ilum-base system-ilum-utils system-ilum-full)
 pkgver=1.0.0
 pkgrel=1
 
@@ -10,9 +10,28 @@ license=('MIT')
 
 source=()
 
+package_system-ilum-skeleton() {
+  pkgdesc='Skeleton for ilum'
+  depends=()
+
+  # Mountpoint for nix subvolume
+  mkdir -p "$pkgdir"/nix
+  # Mountpoint for the subvolume containing the swapfile
+  mkdir -p "$pkgdir"/swap
+
+  # Mountpoint for root btrfs subvolume
+  mkdir -p "$pkgdir"/mnt/rootfs
+  # Mountpoint for big SSD
+  mkdir -p "$pkgdir"/mnt/fastass
+  # Mountpoint for random stuff like usb sticks
+  mkdir -p "$pkgdir"/mnt/stuff
+}
+
 package_system-ilum-base() {
   pkgdec='Base packages for ilum'
   depends=(
+    # Skeleton
+    'system-ilum-skeleton'
     # Needed to boot
     'base'
     'linux'
