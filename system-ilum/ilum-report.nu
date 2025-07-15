@@ -2,8 +2,67 @@
 
 use std/assert
 
-def trim-path [] {
-  str trim --right --char '/'
+def "main print-data" [] {
+  collect-filesystem-db | explore
+}
+
+def main [--quiet (-q)] {
+  print "Collecting problematic files data..."
+  let db = collect-filesystem-db
+  print $"Found (ansi defb)($db | length)(ansi reset) problematic entries"
+
+  let missing_package_files = $db | where package != null and present == false
+  print $"Found (ansi defb)($missing_package_files | length)(ansi reset) missing package files"
+  if not $quiet and ($missing_package_files | length) > 0 {
+    echo $missing_package_files | explore
+  }
+
+  let unowned_dirs = $db
+    | where package == null and present == true and type == "dir"
+
+  print $"Found (ansi defb)($unowned_dirs | length)(ansi reset) unowned dirs"
+  if not $quiet and ($unowned_dirs | length) > 0 {
+    echo $unowned_dirs | explore
+  }
+
+  let unowned_files = $db | where package == null and present == true and type != "dir"
+  print $"Found (ansi defb)($unowned_files | length)(ansi reset) unowned files"
+  if not $quiet and ($unowned_files | length) > 0 {
+    echo $unowned_files | explore
+  }
+}
+
+def collect-filesystem-db []: nothing -> table<file: string, package: string, present: bool, type: string> {
+  let package_files = ^pacman -Ql
+    | lines
+    | parse '{package} {file}'
+    | update file {|| trim-path}
+
+  let system_files = ^find -P / -xdev
+    | lines
+    | trim-path
+    | uniq
+    | where {|| ($in | str length) > 0}
+    | wrap file
+
+  $package_files
+    | join --outer $system_files file
+    | insert present {|| $in.file | path exists}
+    | insert type {|| $in.file | path type}
+    | insert modified false
+    | where {|| $in.package == null or not $in.present or $in.modified} # Problematic files
+    | ignore-list # Known problematic file to just ignore
+    | move --first file
+}
+
+def ignore-list [] {
+  $in
+    | ignore-mime
+    | ignore-root
+    | ignore-ca-certificates
+    | ignore-pacman-keys
+    | ignore-icon-cache
+    | ignore-kernel-modules-cache
 }
 
 def ignore-mime [] {
@@ -46,67 +105,6 @@ def ignore-kernel-modules-cache [] {
     )}
 }
 
-def ignore-list [] {
-  $in
-    | ignore-mime
-    | ignore-root
-    | ignore-ca-certificates
-    | ignore-pacman-keys
-    | ignore-icon-cache
-    | ignore-kernel-modules-cache
+def trim-path [] {
+  str trim --right --char '/'
 }
-
-def collect-filesystem-db []: nothing -> table<file: string, package: string, present: bool, type: string> {
-  let package_files = ^pacman -Ql
-    | lines
-    | parse '{package} {file}'
-    | update file {|| trim-path}
-
-  let system_files = ^find -P / -xdev
-    | lines
-    | trim-path
-    | uniq
-    | where {|| ($in | str length) > 0}
-    | wrap file
-
-  $package_files
-    | join --outer $system_files file
-    | insert present {|| $in.file | path exists}
-    | insert type {|| $in.file | path type}
-    | insert modified false
-    | where {|| $in.package == null or not $in.present or $in.modified} # Problematic files
-    | ignore-list # Known problematic file to just ignore
-    | move --first file
-}
-
-def "main print-data" [] {
-  collect-filesystem-db | explore
-}
-
-def main [--quiet (-q)] {
-  print "Collecting problematic files data..."
-  let db = collect-filesystem-db
-  print $"Found (ansi defb)($db | length)(ansi reset) problematic entries"
-
-  let missing_package_files = $db | where package != null and present == false
-  print $"Found (ansi defb)($missing_package_files | length)(ansi reset) missing package files"
-  if not $quiet and ($missing_package_files | length) > 0 {
-    echo $missing_package_files | explore
-  }
-
-  let unowned_dirs = $db
-    | where package == null and present == true and type == "dir"
-
-  print $"Found (ansi defb)($unowned_dirs | length)(ansi reset) unowned dirs"
-  if not $quiet and ($unowned_dirs | length) > 0 {
-    echo $unowned_dirs | explore
-  }
-
-  let unowned_files = $db | where package == null and present == true and type != "dir"
-  print $"Found (ansi defb)($unowned_files | length)(ansi reset) unowned files"
-  if not $quiet and ($unowned_files | length) > 0 {
-    echo $unowned_files | explore
-  }
-}
-
-
