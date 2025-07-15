@@ -17,9 +17,13 @@ def main [--quiet (-q)] {
     echo $missing_package_files | explore
   }
 
-  let unowned_dirs = $db
-    | where package == null and present == true and type == "dir"
+  let modified_package_configs = $db | where package != null and modified == true
+  print $"Found (ansi defb)($modified_package_configs | length)(ansi reset) modified config files"
+  if not $quiet and ($modified_package_configs | length) > 0 {
+    echo $modified_package_configs | explore
+  }
 
+  let unowned_dirs = $db | where package == null and present == true and type == "dir"
   print $"Found (ansi defb)($unowned_dirs | length)(ansi reset) unowned dirs"
   if not $quiet and ($unowned_dirs | length) > 0 {
     echo $unowned_dirs | explore
@@ -38,6 +42,17 @@ def collect-filesystem-db []: nothing -> table<file: string, package: string, pr
     | parse '{package} {file}'
     | update file {|| trim-path}
 
+  let modified_package_files = ^pacman -Qii
+    | ^jc --pacman
+    | from json
+    | select -i backup_files
+    | flatten -a | where backup_files != null
+    | update backup_files {|p| $p.backup_files | parse '{file} [{status}]'}
+    | flatten -a
+    | where status == "modified"
+    | drop column
+    | insert modified true
+
   let system_files = ^find -P / -xdev
     | lines
     | trim-path
@@ -46,16 +61,21 @@ def collect-filesystem-db []: nothing -> table<file: string, package: string, pr
     | wrap file
 
   $package_files
+    | join --outer $modified_package_files file
     | join --outer $system_files file
     | insert present {|| $in.file | path exists}
     | insert type {|| $in.file | path type}
-    | insert modified false
-    | where {|| $in.package == null or not $in.present or $in.modified} # Problematic files
+    | default false modified
+    | keep-problematic
     | ignore-list # Known problematic file to just ignore
     | move --first file
 }
 
-def ignore-list [] {
+def keep-problematic [] {
+  $in | where {|r| $r.file == null or $r.package == null or (not $r.present) or $r.modified}
+}
+
+def ignore-list []: table<file: string, type: string> -> table<file: string, type: string> {
   $in
     | ignore-mime
     | ignore-root
