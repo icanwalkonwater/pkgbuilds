@@ -1,5 +1,5 @@
 pkgname=grub-theme-minegrub-world-selection-git
-pkgver=1.0.0
+pkgver=1.0.0.r26.ge3458bb
 pkgrel=1
 pkgdesc='A grub theme in the style of the Minecraft singleplayer (sp) world selection screen!'
 arch=(any)
@@ -11,6 +11,12 @@ makedepens=('git')
 
 source=('git+https://github.com/Lxtharia/minegrub-world-sel-theme.git')
 sha256sums=('SKIP')
+
+# Straight from https://wiki.archlinux.org/title/VCS_package_guidelines
+pkgver() {
+  cd "minegrub-world-sel-theme"
+  git describe --long --tags --abbrev=7 | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./g'
+}
 
 package() {
   mkdir -p "${pkgdir}/usr/share/grub/themes/"
