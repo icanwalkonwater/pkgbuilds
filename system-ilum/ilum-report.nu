@@ -2,87 +2,155 @@
 
 use std/assert
 
-def "main print-data" [] {
-  collect-filesystem-db | explore
+def "main export-db" [dest: path, --overwrite] {
+  let db = collect-problematic-db --all
+  $db | to msgpackz | save --progress --force=$overwrite $dest
 }
 
-def main [--quiet (-q)] {
-  print "Collecting problematic files data..."
-  let db = collect-filesystem-db
+def "main explore" [db: path, --quiet (-q)] {
+  print "Reading problematic files database..."
+  let db = open $db | from msgpackz
   print $"Found (ansi defb)($db | length)(ansi reset) problematic entries"
 
-  let missing_package_files = $db | where package != null and present == false
+  let missing_package_files = $db | where package != null and exists == false
   print $"Found (ansi defb)($missing_package_files | length)(ansi reset) missing package files"
-  if not $quiet and ($missing_package_files | length) > 0 {
-    echo $missing_package_files | explore
-  }
+  maybe-explore $missing_package_files $quiet
 
   let modified_package_configs = $db | where package != null and modified == true
   print $"Found (ansi defb)($modified_package_configs | length)(ansi reset) modified config files"
-  if not $quiet and ($modified_package_configs | length) > 0 {
-    echo $modified_package_configs | explore
-  }
+  maybe-explore $modified_package_configs $quiet
 
-  let unowned_dirs = $db | where package == null and present == true and type == "dir"
+  let unowned_dirs = $db | where package == null and exists == true and type == "dir"
   print $"Found (ansi defb)($unowned_dirs | length)(ansi reset) unowned dirs"
-  if not $quiet and ($unowned_dirs | length) > 0 {
-    echo $unowned_dirs | explore
-  }
+  maybe-explore $unowned_dirs $quiet
 
-  let unowned_files = $db | where package == null and present == true and type != "dir"
+  let unowned_files = $db | where package == null and exists == true and type != "dir"
   print $"Found (ansi defb)($unowned_files | length)(ansi reset) unowned files"
-  if not $quiet and ($unowned_files | length) > 0 {
-    echo $unowned_files | explore
-  }
+  maybe-explore $unowned_files $quiet
 }
 
-def collect-filesystem-db []: nothing -> table<file: string, package: string, present: bool, type: string> {
+def "main choose" [db: path] {
+  let db_raw = open $db | from msgpackz
+  print $"Loaded (ansi defb)($db_raw | length)(ansi reset) problematic entries"
+  let db = $db_raw | check-skip-known-homeless-dirs
+  print $"Filtered (ansi defb)(($db_raw | length) - ($db | length))(ansi reset) entries"
+
+  # Step 1: Find folders full of unowned files as easy target
+  let fully_homeless_dirs = $db | where dir_fully_homeless == true
+  let parent_fully_homeless_dirs = $fully_homeless_dirs
+    | insert parent_homeless {|r| ($r.path | path dirname) in $fully_homeless_dirs.path}
+    | where parent_homeless == false
+    | drop column
+
+  print $"Found (ansi defb)($parent_fully_homeless_dirs | length)(ansi reset) completely unowned directories:"
+  for $p in $parent_fully_homeless_dirs.path {
+    print $"  (ansi defb)($p)(ansi reset)"
+  }
+
+  # TODO:
+}
+
+def main [] {
+  print --stderr "No subcommand passed, see --help"
+  exit 1
+}
+
+def collect-problematic-db [--limit: int, --all]: nothing -> table<path: string, package: string, modified: bool, exists: bool, type: string, dir_fully_homeless: bool> {
+  # Ask pacman for all the files owned by a package
   let package_files = ^pacman -Ql
     | lines
-    | parse '{package} {file}'
-    | update file {|| trim-path}
+    | parse '{package} {path}'
+    | update path {|| trim-path}
 
+  # Ask pacman for all (important) files that have changed
   let modified_package_files = ^pacman -Qii
     | ^jc --pacman
     | from json
     | select -i backup_files
     | flatten -a | where backup_files != null
-    | update backup_files {|p| $p.backup_files | parse '{file} [{status}]'}
+    | update backup_files {|p| $p.backup_files | parse '{path} [{status}]'}
     | flatten -a
     | where status == "modified"
-    | drop column
+    | select path
     | insert modified true
 
+  # List all files on the root filesystem
   let system_files = ^find -P / -xdev
     | lines
     | trim-path
     | uniq
     | where {|| ($in | str length) > 0}
-    | wrap file
+    | wrap path
 
-  $package_files
-    | join --outer $modified_package_files file
-    | join --outer $system_files file
-    | insert present {|| $in.file | path exists}
-    | insert type {|| $in.file | path type}
+  # Join all that and get the problematic entries
+  let problematic = $package_files
+    | join --outer $modified_package_files path
+    | join --outer $system_files path
+    | insert exists {|| $in.path | path exists}
+    | insert type {|| $in.path | path type}
     | default false modified
     | keep-problematic
-    | ignore-list # Known problematic file to just ignore
-    | move --first file
+    | move --first path
+
+  let with_homeless = $problematic
+      | insert dir_fully_homeless {|r|
+        if $r.package == null and $r.exists == true and $r.type == "dir" {
+          ls $r.path | get name | all {|f| $f in $problematic.path}
+        } else { false }
+      }
+
+  $with_homeless
 }
 
 def keep-problematic [] {
-  $in | where {|r| $r.file == null or $r.package == null or (not $r.present) or $r.modified}
+  $in | where {|r| $r.path == null or $r.package == null or (not $r.exists) or $r.modified}
 }
 
-def ignore-list []: table<file: string, type: string> -> table<file: string, type: string> {
+def check-skip-known-homeless-dirs [] {
+  let db = $in
+  let ignore  = [
+    "/etc/ca-certificates/extracted/cadir",
+
+    "/etc/pacman.d/gnupg",
+
+    "/usr/share/mime/inode",
+    "/usr/share/mime/text",
+    "/usr/share/mime/application",
+    "/usr/share/mime/model",
+    "/usr/share/mime/video",
+    "/usr/share/mime/font",
+    "/usr/share/mime/image",
+    "/usr/share/mime/audio",
+    "/usr/share/mime/multipart",
+    "/usr/share/mime/x-content",
+    "/usr/share/mime/message",
+    "/usr/share/mime/chemical",
+    "/usr/share/mime/x-epoc",
+
+    "/root/.gnupg",
+    "/root/.ssh",
+    "/root/.local",
+    "/root/.cache",
+    "/root/.config",
+  ]
+
+  for $known in $ignore {
+    if ($db.path | find -r $"^($known)$" | is-empty) {
+      error make {msg: $"Known homeless dir isn't fully homeless: ($known)"}
+    }
+  }
+
+  $db | where {|r| $ignore | all {|known| not ($r.path | str starts-with $known)}}
+}
+
+def ignore-list [] {
   $in
-    | ignore-mime
-    | ignore-root
-    | ignore-ca-certificates
-    | ignore-pacman-keys
-    | ignore-icon-cache
-    | ignore-kernel-modules-cache
+    # | ignore-mime
+    # | ignore-root
+    # | ignore-ca-certificates
+    # | ignore-pacman-keys
+    # | ignore-icon-cache
+    # | ignore-kernel-modules-cache
 }
 
 def ignore-mime [] {
@@ -102,11 +170,8 @@ def ignore-root [] {
 def ignore-ca-certificates [] {
   # SSL Certificates are all over the place
   $in
-    | where file !~ "^/etc/ca-certificates/extracted/cadir(/.+)?$"
-    | where file !~ "^/etc/ca-certificates/extracted/(tls-ca-bundle.pem|email-ca-bundle.pem|objsign-ca-bundle.pem|edk2-cacerts.bin|java-cacerts.jks)(/.+)?$"
-    | where file !~ "^/etc/ssl/certs/[0-9a-f]{8}\\.0$"
-    | where file !~ "^/etc/ssl/certs/[a-zA-Z0-9_.-]+\\.pem$"
-    | where {|r| not ($r.type == "symlink" and $r.file == "/etc/ssl/certs/java/cacerts")}
+    | where file !~ "^/etc/ca-certificates/extracted(/.+)?$"
+    | where file !~ "^/etc/ssl/certs(/.+)?$"
 }
 
 def ignore-pacman-keys [] {
@@ -123,6 +188,12 @@ def ignore-kernel-modules-cache [] {
         $r.type == "file"
         and $r.file =~ "^/usr/lib/modules/" + (^uname -r) + "/modules\\.(dep|dep\\.bin|alias|alias\\.bin|softdep|weakdep|symbols|symbols\\.bin|builtin\\.bin|builtin\\.alias\\.bin|devname)$"
     )}
+}
+
+def maybe-explore [data, quiet: bool] {
+  if not $quiet and ($data | length) > 0 {
+    $data | explore
+  }
 }
 
 def trim-path [] {
