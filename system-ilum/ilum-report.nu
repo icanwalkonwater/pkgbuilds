@@ -4,46 +4,47 @@ use std/assert
 
 def "main export-db" [dest: path, --overwrite] {
   let db = collect-problematic-db --all
-  print $"Writing to (ansi defb)($dest)(ansi reset) ..."
+  print $"Writing to ($dest | boldify) ..."
   $db | to msgpackz | save --progress --force=$overwrite $dest
 }
 
 def "main explore" [db: path, --quiet (-q)] {
   print "Reading problematic files database..."
   let db = open $db | from msgpackz
-  print $"Found (ansi defb)($db | length)(ansi reset) problematic entries"
+  print $"Found ($db | length | boldify) problematic entries"
 
   let missing_package_files = $db | where package != null and exists == false
-  print $"Found (ansi defb)($missing_package_files | length)(ansi reset) missing package files"
+  print $"Found ($missing_package_files | length | boldify) missing package files"
   maybe-explore $missing_package_files $quiet
 
   let modified_package_configs = $db | where package != null and modified == true
-  print $"Found (ansi defb)($modified_package_configs | length)(ansi reset) modified config files"
+  print $"Found ($modified_package_configs | length | boldify) modified config files"
   maybe-explore $modified_package_configs $quiet
 
   let unowned_dirs = $db | where package == null and exists == true and type == "dir"
-  print $"Found (ansi defb)($unowned_dirs | length)(ansi reset) unowned dirs"
+  print $"Found ($unowned_dirs | length | boldify) unowned dirs"
   maybe-explore $unowned_dirs $quiet
 
   let unowned_files = $db | where package == null and exists == true and type != "dir"
-  print $"Found (ansi defb)($unowned_files | length)(ansi reset) unowned files"
+  print $"Found ($unowned_files | length | boldify) unowned files"
   maybe-explore $unowned_files $quiet
 }
 
 def "main choose" [db: path] {
   # Step 1: Open previously built database of potentially problematic files
   let db_raw = open $db | from msgpackz
-  print $"Loaded (ansi defb)($db_raw | length)(ansi reset) problematic entries"
+  print $"Loaded ($db_raw | length | boldify) problematic entries"
 
   # Step 2: Filter them successively
   print $"Filtering expected entries:"
-  # let db = $db_raw | check-skip-known-homeless-dirs
   let db = $db_raw
     | db-filter-ca-certificates
     | db-filter-pacman-keys
     | db-filter-mime
     | db-filter-root-user-files
-  print $"Filtered (ansi defb)(($db_raw | length) - ($db | length))(ansi reset) false positives, there remains (ansi defb)($db | length)(ansi reset) problematic entries"
+    | db-filter-mkinitcpio
+    | db-filter-linux-modules
+  print $"Filtered (($db_raw | length) - ($db | length) | boldify) false positives, there remains ($db | length | boldify) problematic entries"
 
   # Step 3: Find folders full of unowned files as easy target
   let fully_homeless_dirs = $db | where dir_fully_homeless == true
@@ -52,7 +53,7 @@ def "main choose" [db: path] {
     | where parent_homeless == false
     | drop column
 
-  print $"Found (ansi defb)($parent_fully_homeless_dirs | length)(ansi reset) completely unowned directories:"
+  print $"Found ($parent_fully_homeless_dirs | length | boldify) completely homeless directories:"
   for $p in $parent_fully_homeless_dirs.path {
     print $"  (ansi defb)($p)(ansi reset)"
   }
@@ -73,7 +74,7 @@ def collect-problematic-db [--limit: int, --all]: nothing -> table<path: string,
     | lines
     | parse '{package} {path}'
     | update path {|| trim-path}
-  print $"  Found (ansi defb)($package_files | length)(ansi reset) package files"
+  print $"  Found ($package_files | length | boldify) package files"
 
   # Ask pacman for all (important) files that have changed
   let modified_package_files = ^pacman -Qii
@@ -86,7 +87,7 @@ def collect-problematic-db [--limit: int, --all]: nothing -> table<path: string,
     | where status == "modified"
     | select path
     | insert modified true
-  print $"  Found (ansi defb)($modified_package_files | length)(ansi reset) modified package files"
+  print $"  Found ($modified_package_files | length | boldify) modified package files"
 
   # List all files on the root filesystem
   let system_files = ^find -P / -xdev
@@ -95,7 +96,7 @@ def collect-problematic-db [--limit: int, --all]: nothing -> table<path: string,
     | uniq
     | where {|| ($in | str length) > 0}
     | wrap path
-  print $"  Found (ansi defb)($system_files | length)(ansi reset) files on this system"
+  print $"  Found ($system_files | length | boldify) files on this system"
 
   # Join all that ...
   let all = $package_files
@@ -116,7 +117,7 @@ def collect-problematic-db [--limit: int, --all]: nothing -> table<path: string,
         } else { false }
       }
 
-  print $"Categorized (ansi defb)($with_homeless | length)(ansi reset) out of (ansi defb)($all | length)(ansi reset) files as problematic"
+  print $"Categorized ($with_homeless | length | boldify) out of ($all | length | boldify) files as problematic"
 
   $with_homeless
 }
@@ -170,7 +171,7 @@ def make-db-filter [name: string, known_homeless_dirs: list<string>] {
   }
   let db_len_after = $db_out | length
 
-  print $"  (ansi defb)($name)(ansi reset) filtered (ansi defb)($db_len_before - $db_len_after)(ansi reset) entries"
+  print $"  ($name | boldify) filtered ($db_len_before - $db_len_after | boldify) entries"
   $db_out
 }
 
@@ -181,6 +182,10 @@ def check-ignore-known-homeless-dir [dir: string] {
   }
 
   $db | where {|r| not ($r.path | str starts-with $dir)}
+}
+
+def boldify []: any -> string {
+  $"(ansi defb)($in)(ansi reset)"
 }
 
 def maybe-explore [data, quiet: bool] {
