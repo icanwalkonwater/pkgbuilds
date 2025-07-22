@@ -4,6 +4,7 @@ use std/assert
 
 def "main export-db" [dest: path, --overwrite] {
   let db = collect-problematic-db --all
+  print $"Writing to (ansi defb)($dest)(ansi reset) ..."
   $db | to msgpackz | save --progress --force=$overwrite $dest
 }
 
@@ -56,11 +57,14 @@ def main [] {
 }
 
 def collect-problematic-db [--limit: int, --all]: nothing -> table<path: string, package: string, modified: bool, exists: bool, type: string, dir_fully_homeless: bool> {
+  print "Building problematic files database..."
+
   # Ask pacman for all the files owned by a package
   let package_files = ^pacman -Ql
     | lines
     | parse '{package} {path}'
     | update path {|| trim-path}
+  print $"  Found (ansi defb)($package_files | length)(ansi reset) package files"
 
   # Ask pacman for all (important) files that have changed
   let modified_package_files = ^pacman -Qii
@@ -73,6 +77,7 @@ def collect-problematic-db [--limit: int, --all]: nothing -> table<path: string,
     | where status == "modified"
     | select path
     | insert modified true
+  print $"  Found (ansi defb)($modified_package_files | length)(ansi reset) modified package files"
 
   # List all files on the root filesystem
   let system_files = ^find -P / -xdev
@@ -81,14 +86,17 @@ def collect-problematic-db [--limit: int, --all]: nothing -> table<path: string,
     | uniq
     | where {|| ($in | str length) > 0}
     | wrap path
+  print $"  Found (ansi defb)($system_files | length)(ansi reset) files on this system"
 
-  # Join all that and get the problematic entries
-  let problematic = $package_files
+  # Join all that ...
+  let all = $package_files
     | join --outer $modified_package_files path
     | join --outer $system_files path
     | insert exists {|| $in.path | path exists}
     | insert type {|| $in.path | path type}
     | default false modified
+  # ... and get the problematic entries
+  let problematic = $all
     | keep-problematic
     | move --first path
 
@@ -98,6 +106,8 @@ def collect-problematic-db [--limit: int, --all]: nothing -> table<path: string,
           ls $r.path | get name | all {|f| $f in $problematic.path}
         } else { false }
       }
+
+  print $"Categorized (ansi defb)($with_homeless | length)(ansi reset) out of (ansi defb)($all | length)(ansi reset) files as problematic"
 
   $with_homeless
 }
