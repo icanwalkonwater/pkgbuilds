@@ -38,12 +38,15 @@ def "main choose" [db: path] {
   # Step 2: Filter them successively
   print $"Filtering expected entries:"
   let db = $db_raw
-    | db-filter-ca-certificates
-    | db-filter-pacman-keys
-    | db-filter-mime
-    | db-filter-root-user-files
-    | db-filter-mkinitcpio
-    | db-filter-linux-modules
+    | db-adopt-ca-certificates
+    | db-adopt-pacman-keys
+    | db-adopt-mime
+    | db-adopt-root-user-files
+    | db-adopt-mkinitcpio
+    | db-adopt-linux-modules
+    | db-adopt-systemd-wants
+    | db-adopt-nvidia-persistance
+    | keep-problematic
   print $"Filtered (($db_raw | length) - ($db | length) | boldify) false positives, there remains ($db | length | boldify) problematic entries"
 
   # Step 3: Categorize the rest with a diagnostic column
@@ -91,6 +94,9 @@ def "main choose" [db: path] {
   }
 
   let untreated = $db | where treated == false
+  if ($untreated | is-not-empty) {
+    print $"(ansi red)ERROR: There remains (ansi rb)($untreated | length)(ansi reset)(ansi red) untreated files(ansi reset)"
+  }
   $untreated | explore
 }
 
@@ -159,10 +165,10 @@ def keep-problematic [] {
   $in | where {|r| $r.path == null or $r.package == null or (not $r.exists) or $r.modified}
 }
 
-def db-filter-ca-certificates [] {
-  make-db-filter "ca-certificates" [
+def db-adopt-ca-certificates [] {
+  make-db-adopter "ca-certificates" "ca-certificates" --dirs [
     "/etc/ca-certificates/extracted/cadir",
-  ] [
+  ] --files [
     "/etc/ca-certificates/extracted/tls-ca-bundle.pem",
     "/etc/ca-certificates/extracted/email-ca-bundle.pem",
     "/etc/ca-certificates/extracted/objsign-ca-bundle.pem",
@@ -172,12 +178,12 @@ def db-filter-ca-certificates [] {
   ]
 }
 
-def db-filter-pacman-keys [] {
-  make-db-filter "pacman-keys" ["/etc/pacman.d/gnupg"]
+def db-adopt-pacman-keys [] {
+  make-db-adopter "pacman-keys" "archlinux-keyring" --dirs ["/etc/pacman.d/gnupg"]
 }
 
-def db-filter-mime [] {
-  make-db-filter "mime-info" [
+def db-adopt-mime [] {
+  make-db-adopter "mime-info" "shared-mime-info" --dirs [
     "/usr/share/mime/inode",
     "/usr/share/mime/text",
     "/usr/share/mime/application",
@@ -191,7 +197,7 @@ def db-filter-mime [] {
     "/usr/share/mime/message",
     "/usr/share/mime/chemical",
     "/usr/share/mime/x-epoc",
-  ] [
+  ] --files [
     "/usr/share/mime/globs",
     "/usr/share/mime/globs2",
     "/usr/share/mime/magic",
@@ -208,8 +214,8 @@ def db-filter-mime [] {
   ]
 }
 
-def db-filter-root-user-files [] {
-  make-db-filter "root-user-files" [
+def db-adopt-root-user-files [] {
+  make-db-adopter "root-user-files" "system-ilum-skeleton" --dirs [
     "/root/.gnupg",
     "/root/.ssh",
     "/root/.local",
@@ -218,13 +224,13 @@ def db-filter-root-user-files [] {
   ]
 }
 
-def db-filter-mkinitcpio [] {
-  make-db-filter "mkinitcpio-generated" [] ["/etc/mkinitcpio.d/linux.preset"]
+def db-adopt-mkinitcpio [] {
+  make-db-adopter "mkinitcpio-generated" "mkinitcpio" --files ["/etc/mkinitcpio.d/linux.preset"]
 }
 
-def db-filter-linux-modules [] {
+def db-adopt-linux-modules [] {
   let linux_v = uname | get kernel-release
-  $in | make-db-filter "linux-modules-deps" [] [
+  $in | make-db-adopter "kernel-modules-cache" "linux" --files [
     $"/usr/lib/modules/($linux_v)/modules.dep",
     $"/usr/lib/modules/($linux_v)/modules.dep.bin",
     $"/usr/lib/modules/($linux_v)/modules.alias",
@@ -239,38 +245,62 @@ def db-filter-linux-modules [] {
   ]
 }
 
-def make-db-filter [name: string, known_homeless_dirs: list<string> = [], known_homeless_files: list<string> = []] {
-  let db = $in
-  let db_len_before = $db | length
-  mut db_out = $db
-  for $d in $known_homeless_dirs {
-    $db_out = $db_out | check-ignore-known-homeless-dir $d
-  }
-  for $f in $known_homeless_files {
-    $db_out = $db_out | check-ignore-known-homeless-file $f
-  }
-  let db_len_after = $db_out | length
+def db-adopt-systemd-wants [] {
+  make-db-adopter "systemd-wants-folders" "systemd" --patterns ["^/etc/systemd/system/[a-z0-9.-]+\\.wants$"]
+}
 
-  print $"  ($name | boldify) filtered ($db_len_before - $db_len_after | boldify) entries"
+def db-adopt-nvidia-persistance [] {
+  make-db-adopter "nvidia-persistance-services" "nvida-utils" --files [
+    "/etc/systemd/system/systemd-hibernate.service.wants/nvidia-hibernate.service",
+    "/etc/systemd/system/systemd-hibernate.service.wants/nvidia-resume.service",
+    "/etc/systemd/system/systemd-suspend.service.wants/nvidia-resume.service",
+    "/etc/systemd/system/systemd-suspend.service.wants/nvidia-suspend.service",
+    "/etc/systemd/system/systemd-suspend-then-hibernate.service.wants/nvidia-resume.service",
+  ]
+}
+
+def make-db-adopter [name: string, package: string, --dirs: list<string> = [], --files: list<string> = [], --patterns: list<string> = []] {
+  let db = $in
+  let pkg_files_before = $db | where package == $package | length
+
+  mut db_out = $db
+  for $d in $dirs {
+    $db_out = $db_out | check-adopt-homeless-dir $package $d
+  }
+  for $f in $files {
+    $db_out = $db_out | check-adopt-homeless-file $package $f
+  }
+  for $pattern in $patterns {
+    for $f in ($db_out | where package == null | get path | find --no-highlight --regex $pattern) {
+      $db_out = $db_out | check-adopt-homeless-file $package $f
+    }
+  }
+
+  let pkg_files_after = $db_out | where package == $package | length
+  # print $"  ($name | boldify) made ($package | boldify) adopt ($pkg_files_after - $pkg_files_before | boldify) entries"
+  print $"  ($pkg_files_after - $pkg_files_before | boldify) entries adopted by ($package | boldify) \(via ($name | boldify)\)"
   $db_out
 }
 
-def check-ignore-known-homeless-dir [dir: string] {
+def check-adopt-homeless-dir [package: string, dir: string] {
   let db = $in
-  if ($db.path | find -r $"^($dir)$" | is-empty) {
-    error make {msg: $"Known homeless dir isn't fully homeless: ($dir)"}
+  if ($db | where path == $dir and type == "dir" and dir_fully_homeless == true | is-empty) {
+    error make {msg: $"Known homeless dir isn't actually fully homeless: ($dir | boldify)"}
   }
-
-  $db | where {|r| not ($r.path | str starts-with $dir)}
+  
+  $db 
+    | update package {|r| if ($r.path | str starts-with $dir) { $package } else { $r.package }}
+    | update dir_fully_homeless {|r| if ($r.path | str starts-with $dir) { false } else { $r.dir_fully_homeless }}
 }
 
-def check-ignore-known-homeless-file [file: string] {
+def check-adopt-homeless-file [package: string, file: string] {
   let db = $in
-  if ($db | where {|r| $r.path == $file} | is-empty) {
-    error make {msg: $"Known homeless file couldn't be found: ($file)"}
+
+  if ($db | where path == $file and package == null | is-empty) {
+    error make {msg: $"Known homeless file isn't actually homeless: ($file | boldify)"}
   }
 
-  $db | where {|r| $r.path != $file}
+  $db | update package {|r| if ($r.path == $file) { $package } else { $r.package }}
 }
 
 def boldify []: any -> string {
