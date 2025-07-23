@@ -46,6 +46,7 @@ def "main choose" [db: path] {
     | db-adopt-linux-modules
     | db-adopt-systemd-wants
     | db-adopt-nvidia-persistance
+    | db-adopt-icon-themes-cache
     | keep-problematic
   print $"Filtered (($db_raw | length) - ($db | length) | boldify) false positives, there remains ($db | length | boldify) problematic entries"
 
@@ -85,8 +86,8 @@ def "main choose" [db: path] {
     print $"  ($p | boldify)"
   }
 
-  # Step 5: Treat leftover homeless files
-  let homeless_files = $db | where treated == false and diagnostic == "homeless" and type == "file"
+  # Step 5: Treat leftover homeless files/symlinks/...
+  let homeless_files = $db | where treated == false and diagnostic == "homeless" and type != "dir"
   print $"Found ($homeless_files | length | boldify) homeless files"
   for $p in $homeless_files.path {
     $db = $db | update treated {|r| $r.treated or $r.path == $p}
@@ -175,6 +176,10 @@ def db-adopt-ca-certificates [] {
     "/etc/ca-certificates/extracted/ca-bundle.trust.crt",
     "/etc/ca-certificates/extracted/edk2-cacerts.bin",
     "/etc/ca-certificates/extracted/java-cacerts.jks",
+    "/etc/ssl/certs/java/cacerts",
+  ] --patterns [
+    "^/etc/ssl/certs/[a-z0-9]{8}\\.0$",
+    "^/etc/ssl/certs/[a-zA-Z0-9_.-]+\\.pem$",
   ]
 }
 
@@ -257,6 +262,10 @@ def db-adopt-nvidia-persistance [] {
     "/etc/systemd/system/systemd-suspend.service.wants/nvidia-suspend.service",
     "/etc/systemd/system/systemd-suspend-then-hibernate.service.wants/nvidia-resume.service",
   ]
+}
+
+def db-adopt-icon-themes-cache [] {
+  make-db-adopter "icon-theme-caches" "icon-themes" --patterns ["^/usr/share/icons/[a-zA-Z0-9_.-]+/icon-theme\\.cache$"]
 }
 
 def make-db-adopter [name: string, package: string, --dirs: list<string> = [], --files: list<string> = [], --patterns: list<string> = []] {
