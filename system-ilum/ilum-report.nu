@@ -325,3 +325,5 @@ def maybe-explore [data, quiet: bool] {
 def trim-path [] {
   str trim --right --char '/'
 }
+
+# vim: set tabstop=2 shiftwidth=2 expandtab :
