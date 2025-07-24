@@ -94,11 +94,26 @@ def "main choose" [db: path] {
     print $"  ($p | boldify)"
   }
 
+  # Step 6: Handle edited system files
+  let edited_files = $db | where treated == false and diagnostic == "edited"
+  print $"Found ($edited_files | length | boldify) modified package files"
+  for $e in $edited_files {
+    $db = $db | update treated {|r| $r.treated or $r.path == $e.path}
+    print $"  ($e.path | boldify) from package ($e.package | boldify):"
+
+    let pkg_version = ^pacman -Qi $e.package | ^jc --pacman | from json | first | format pattern "{version}-{architecture}"
+    let original = mktemp
+    ^tar -xOf $"/var/cache/pacman/pkg/($e.package)-($pkg_version).pkg.tar.zst" ($e.path | str substring 1..) o> $original
+    let diff = ^diff --color=always $original $e.path | complete | get stdout
+    print $diff
+    rm $original
+  }
+
   let untreated = $db | where treated == false
   if ($untreated | is-not-empty) {
     print $"(ansi red)ERROR: There remains (ansi rb)($untreated | length)(ansi reset)(ansi red) untreated files(ansi reset)"
   }
-  $untreated | explore
+  maybe-explore $untreated false
 }
 
 def main [] {
