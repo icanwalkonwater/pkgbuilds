@@ -8,7 +8,8 @@ url='https://github.com/icanwalkonwater/pkgbuilds'
 arch=('any')
 license=('MIT')
 
-source=()
+source=('sudoers.d-allow-sudo-group')
+sha256sums=('81576086c069a2c098b510553a20c6b44b42c954d7d359991ec90db475142486')
 
 package_system-ilum-skeleton() {
   pkgdesc='Skeleton for ilum'
@@ -82,6 +83,8 @@ package_system-ilum-base() {
     'fastfetch'
     'lazygit'
   )
+
+  install -Dm0700 sudoers.d-allow-sudo-group "$pkgdir"/etc/sudoers.d/allow-sudo-group
 }
 
 package_system-ilum-utils() {

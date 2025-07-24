@@ -1,0 +1,2 @@
+# Allow all users in the sudo group
+%sudo ALL=(ALL:ALL) ALL
