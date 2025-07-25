@@ -47,6 +47,7 @@ def "main choose" [db: path] {
     | db-adopt-systemd-wants
     | db-adopt-nvidia-persistance
     | db-adopt-icon-themes-cache
+    | db-ignore-modfied-configs
     | keep-problematic
   print $"Filtered (($db_raw | length) - ($db | length) | boldify) false positives, there remains ($db | length | boldify) problematic entries"
 
@@ -135,7 +136,7 @@ def collect-problematic-db [--limit: int, --all]: nothing -> table<path: string,
   let modified_package_files = ^pacman -Qii
     | ^jc --pacman
     | from json
-    | select -i backup_files
+    | select -o backup_files
     | flatten -a | where backup_files != null
     | update backup_files {|p| $p.backup_files | parse '{path} [{status}]'}
     | flatten -a
@@ -283,6 +284,17 @@ def db-adopt-icon-themes-cache [] {
   make-db-adopter "icon-theme-caches" "icon-themes" --patterns ["^/usr/share/icons/[a-zA-Z0-9_.-]+/icon-theme\\.cache$"]
 }
 
+def db-ignore-modfied-configs [] {
+  $in
+    | check-ignore-modified-file "/etc/fstab"
+    | check-ignore-modified-file "/etc/passwd"
+    | check-ignore-modified-file "/etc/group"
+    | check-ignore-modified-file "/etc/shadow"
+    | check-ignore-modified-file "/etc/gshadow"
+    | check-ignore-modified-file "/etc/shells"
+    | check-ignore-modified-file "/etc/pacman.d/mirrorlist"
+}
+
 def make-db-adopter [name: string, package: string, --dirs: list<string> = [], --files: list<string> = [], --patterns: list<string> = []] {
   let db = $in
   let pkg_files_before = $db | where package == $package | length
@@ -325,6 +337,16 @@ def check-adopt-homeless-file [package: string, file: string] {
   }
 
   $db | update package {|r| if ($r.path == $file) { $package } else { $r.package }}
+}
+
+def check-ignore-modified-file [file: string] {
+  let db = $in
+
+  if ($db | where path == $file and modified == true | is-empty) {
+    error make {msg: $"Known modified file isn't actually modified: ($file | boldify)"}
+  }
+
+  $db | update modified {|r| if ($r.path == $file) { false } else { $r.modified }}
 }
 
 def boldify []: any -> string {
