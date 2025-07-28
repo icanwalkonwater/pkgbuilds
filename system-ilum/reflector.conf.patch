@@ -1,0 +1,16 @@
+diff --git a/etc/xdg/reflector/reflector.conf b/etc/xdg/reflector/reflector.conf
+--- a/etc/xdg/reflector/reflector.conf
++++ b/etc/xdg/reflector/reflector.conf
+@@ -18,10 +18,10 @@
+ # Select the country (--country).
+ # Consult the list of available countries with "reflector --list-countries" and
+ # select the countries nearest to you or the ones that you trust. For example:
+-# --country France,Germany
++--country fr,de,nl,it,es,gb,ch
+ 
+ # Use only the  most recently synchronized mirrors (--latest).
+ --latest 5
+ 
+ # Sort the mirrors by synchronization time (--sort).
+---sort age
++--sort rate

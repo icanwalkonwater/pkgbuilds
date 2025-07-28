@@ -1,0 +1,14 @@
+[Trigger]
+Operation = Install
+Operation = Upgrade
+Type = Path
+Target = /etc/pacman.conf
+Target = /etc/xdg/reflector/reflector.conf
+Target = /etc/locale.gen
+
+[Action]
+Description = Patching config files for system ilum...
+Depends = system-ilum-utils
+When = PostTransaction
+NeedsTargets
+Exec = /usr/bin/ilum-patch patch --stdin

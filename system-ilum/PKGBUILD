@@ -1,6 +1,6 @@
 pkgbase=system-ilum
 pkgname=(system-ilum-skeleton system-ilum-base system-ilum-utils system-ilum-full)
-pkgver=1.0.1
+pkgver=1.1.1
 pkgrel=1
 
 pkgdesc='System configuration'
@@ -8,8 +8,24 @@ url='https://github.com/icanwalkonwater/pkgbuilds'
 arch=('any')
 license=('MIT')
 
-source=('sudoers.d-allow-sudo-group')
-sha256sums=('81576086c069a2c098b510553a20c6b44b42c954d7d359991ec90db475142486')
+source=(
+  'ilum-report.nu'
+  'ilum-patch.nu'
+  'sudoers.d-allow-sudo-group'
+  'pacman-hook-ilum-patch.hook'
+  'pacman.conf.patch'
+  'reflector.conf.patch'
+  'locale.gen.patch'
+)
+sha256sums=(
+  '56e09e334f1c3c5f7ffec9ef31eee7101957da590dc4da2723f01ac828e18ff8'
+  'f30e47017706eff66332c3ec583ae107f8f9e5864b4c31001ee630f7240dc629'
+  '81576086c069a2c098b510553a20c6b44b42c954d7d359991ec90db475142486'
+  '00e4a3f79533ccd869a24f861417bd7d3a950b168b7e5700542de491d7121055'
+  'b69640be1aa0f148678e969a675fb29f166e13d74e779c8f4d025a42a2ce3504'
+  '9d676d4e2cd9acaead7b7156c8bb25286fbeac619b84739e9e73406049402115'
+  'e9bf5423102855dc6f3eed8daff2f627bd8b1d7e490bbcbb336c08a72168b1cf'
+)
 
 package_system-ilum-skeleton() {
   pkgdesc='Skeleton for ilum'
@@ -37,7 +53,7 @@ package_system-ilum-base() {
     'base' 'linux' 'linux-firmware' 'btrfs-progs'
     'efibootmgr' 'grub' 'os-prober' 'grub-theme-minegrub-world-selection-git'
     # Maintenance
-    'reflector' 'pacman-contrib' 'smartmontools' 'snapper'
+    'reflector' 'pacman-contrib' 'smartmontools' 'snapper' 'patch'
     # AUR
     'base-devel' 'paru'
     # Dotfiles
@@ -55,13 +71,25 @@ package_system-ilum-base() {
     'zellij' 'fbset' 'fastfetch'
     'openssh'
   )
+  install='system-ilum-full.install'
+
 
   install -Dm0700 sudoers.d-allow-sudo-group "$pkgdir"/etc/sudoers.d/allow-sudo-group
+  chmod 750 "$pkgdir"/etc/sudoers.d/
+
+  install -Dm0755 ilum-patch.nu "$pkgdir"/usr/bin/ilum-patch
+  install -Dm0644 pacman-hook-ilum-patch.hook "$pkgdir"/usr/share/libalpm/hooks/ilum-patch.hook
+
+  install -Dm0644 pacman.conf.patch "$pkgdir"/usr/share/ilum/patches/pacman.conf.patch
+  install -Dm0644 reflector.conf.patch "$pkgdir"/usr/share/ilum/patches/reflector.conf.patch
+  install -Dm0644 locale.gen.patch "$pkgdir"/usr/share/ilum/patches/locale.gen.patch
 }
 
 package_system-ilum-utils() {
   pkgdesc='Utility scripts for ilum'
-  depends=()
+  depends=('system-ilum-base')
+
+  install -Dm0755 ilum-report.nu "$pkgdir"/usr/bin/ilum-report
 }
 
 package_system-ilum-full() {
@@ -102,4 +130,5 @@ package_system-ilum-full() {
     # Bit random
     'nwg-look' 'papirus-icon-theme' 'brightnessctl'
   )
+  install='system-ilum-full.install'
 }

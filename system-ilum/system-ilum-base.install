@@ -1,0 +1,7 @@
+post_install() {
+  systemctl enable \
+    smartd.service \
+    systemd-networkd.service \
+    paccache.timer \
+    reflector.timer
+}
