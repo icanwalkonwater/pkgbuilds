@@ -34,54 +34,26 @@ package_system-ilum-base() {
     # Skeleton
     'system-ilum-skeleton'
     # Needed to boot
-    'base'
-    'linux'
-    'linux-firmware'
-    'efibootmgr'
-    'btrfs-progs'
-    'grub'
-    'os-prober'
-    'grub-theme-minegrub-world-selection-git'
+    'base' 'linux' 'linux-firmware' 'btrfs-progs'
+    'efibootmgr' 'grub' 'os-prober' 'grub-theme-minegrub-world-selection-git'
     # Maintenance
-    'reflector'
-    'pacman-contrib'
-    'snapper'
-    'smartmontools'
+    'reflector' 'pacman-contrib' 'smartmontools' 'snapper'
     # AUR
-    'base-devel'
-    'paru'
+    'base-devel' 'paru'
     # Dotfiles
     'stow'
 
     # Drivers
-    'nvidia-open'
-    'nvidia-utils'
-    'intel-media-driver'
-    'intel-ucode'
-    'libva-nvidia-driver'
-    'libva-utils'
-    'vulkan-tools'
+    'nvidia-open' 'nvidia-utils'
+    'intel-ucode' 'intel-media-driver'
+    'libva-nvidia-driver' 'libva-utils' 'vulkan-tools'
 
     # Shell
-    'fish'
-    'nushell'
-    'man-db'
-    'man-pages'
-    'bat'
-    'git'
-    'neovim'
-    'htop'
-    'nvtop'
+    'fish' 'nushell' 'starship' 'bat' 'htop' 'nvtop' 'tree' 'sudo' 'git' 'lazygit'
+    'man-db' 'man-pages'
+    'neovim' 'fzf' 'ripgrep'
+    'zellij' 'fbset' 'fastfetch'
     'openssh'
-    'fzf'
-    'ripgrep'
-    'starship'
-    'sudo'
-    'tree'
-    'zellij'
-    'fbset'
-    'fastfetch'
-    'lazygit'
   )
 
   install -Dm0700 sudoers.d-allow-sudo-group "$pkgdir"/etc/sudoers.d/allow-sudo-group
@@ -95,26 +67,18 @@ package_system-ilum-utils() {
 package_system-ilum-full() {
   pkgdesc='Full desktop for ilum'
   depends=(
-    'system-ilum-base'
-    'system-ilum-utils'
+    'system-ilum-base' 'system-ilum-utils'
 
     # Destkop setup
     # Display Manager
     'ly'
     # Session Manager
-    'uwsm'
-    'libnewt'
+    'uwsm' 'libnewt'
     # Window Manager & friends
-    'hyprland'
-    'hyprpolkitagent'
-    'hyprlock'
-    'hyprpaper'
-    'hyprsunset'
+    'hyprland' 'hyprpolkitagent' 'hyprlock' 'hyprpaper' 'hyprsunset'
     # Screenshot
-    'hyprshot'
-    'xdg-desktop-portal-hyprland'
-    'hyprpicker'
-    'qt5-wayland'
+    'hyprshot' 'xdg-desktop-portal-hyprland'
+    'hyprpicker' 'qt5-wayland'
     # Status bar
     'waybar'
     # Notification daemon
@@ -127,28 +91,15 @@ package_system-ilum-full() {
     'ranger'
     # Image viewer
     'feh'
-
     # Sound
-    'pipewire'
-    'wireplumber'
-    'pipewire-pulse'
-    'pavucontrol'
-
+    'pipewire' 'wireplumber' 'pipewire-pulse' 'pavucontrol'
     # Flatpak
     'flatpak'
-
     # Steam
-    'steam'
-    'lib32-nvidia-utils'
-    'lib32-systemd'
-
+    'steam' 'lib32-nvidia-utils' 'lib32-systemd'
     # Fonts
-    'ttf-jetbrains-mono-nerd'
-    'ttf-liberation'
-
+    'ttf-jetbrains-mono-nerd' 'ttf-liberation'
     # Bit random
-    'nwg-look'
-    'papirus-icon-theme'
-    'brightnessctl'
+    'nwg-look' 'papirus-icon-theme' 'brightnessctl'
   )
 }
