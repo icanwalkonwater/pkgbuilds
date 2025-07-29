@@ -1,0 +1,22 @@
+diff --git a/etc/default/grub b/etc/default/grub
+--- a/etc/default/grub
++++ b/etc/default/grub
+@@ -3,8 +3,8 @@
+ GRUB_DEFAULT=0
+ GRUB_TIMEOUT=5
+ GRUB_DISTRIBUTOR="Arch"
+-GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet"
+-GRUB_CMDLINE_LINUX=""
++GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3"
++GRUB_CMDLINE_LINUX="video=DP-2:1920x1080 video=DP-3:1920x1080"
+ 
+ # Preload both GPT and MBR modules so that they are not missed
+ GRUB_PRELOAD_MODULES="part_gpt part_msdos"
+@@ -45,6 +45,7 @@ GRUB_DISABLE_RECOVERY=true
+ # Uncomment one of them for the gfx desired, a image background or a gfxtheme
+ #GRUB_BACKGROUND="/path/to/wallpaper"
+ #GRUB_THEME="/path/to/gfxtheme"
++GRUB_THEME=/boot/grub/themes/minegrub-world-selection/theme.txt
+ 
+ # Uncomment to get a beep at GRUB start
+ #GRUB_INIT_TUNE="480 440 1"
