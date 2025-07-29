@@ -12,6 +12,7 @@ source=(
   'ilum-report.nu'
   'ilum-patch.nu'
   'sudoers.d-allow-sudo-group'
+  'pacreport.conf'
   'pacman-hook-ilum-patch.hook'
   'etc-pacman.conf.patch'
   'etc-xdg-reflector-reflector.conf.patch'
@@ -24,6 +25,7 @@ sha256sums=(
   'c4511e0c0d28a5cf862631f0ce72febe93adf6ffba2f7851254356191d76c3d2'
   '2fa2d78fd517bd8721e23b0b5c6ebf9b74b4e3a85a77569cdca6855816bfd261'
   '81576086c069a2c098b510553a20c6b44b42c954d7d359991ec90db475142486'
+  '59badeaff799f030f62a24e749168adc02cd0e232f145e5f288579a6234e40b2'
   '320ff78aa2297a482c193d0d14b1f6a3ba3fdf26e1c19d6dbed95c974901de6e'
   'b69640be1aa0f148678e969a675fb29f166e13d74e779c8f4d025a42a2ce3504'
   '9d676d4e2cd9acaead7b7156c8bb25286fbeac619b84739e9e73406049402115'
@@ -83,9 +85,13 @@ package_system-ilum-base() {
   install -Dm0700 sudoers.d-allow-sudo-group "$pkgdir"/etc/sudoers.d/allow-sudo-group
   chmod 750 "$pkgdir"/etc/sudoers.d/
 
+  install -Dm0644 pacreport.conf "$pkgdir"/etc/pacreport.conf
+
+  # Patch setup.
   install -Dm0755 ilum-patch.nu "$pkgdir"/usr/bin/ilum-patch
   install -Dm0644 pacman-hook-ilum-patch.hook "$pkgdir"/usr/share/libalpm/hooks/ilum-patch.hook
 
+  # Patches
   install -Dm0644 etc-pacman.conf.patch "$pkgdir"/usr/share/ilum/patches/etc-pacman.conf.patch
   install -Dm0644 etc-xdg-reflector-reflector.conf.patch "$pkgdir"/usr/share/ilum/patches/etc-xdg-reflector-reflector.conf.patch
   install -Dm0644 etc-locale.gen.patch "$pkgdir"/usr/share/ilum/patches/etc-locale.gen.patch
