@@ -13,9 +13,9 @@ source=(
   'ilum-patch.nu'
   'sudoers.d-allow-sudo-group'
   'pacman-hook-ilum-patch.hook'
-  'pacman.conf.patch'
-  'reflector.conf.patch'
-  'locale.gen.patch'
+  'etc-pacman.conf.patch'
+  'etc-xdg-reflector-reflector.conf.patch'
+  'etc-locale.gen.patch'
 )
 sha256sums=(
   '56e09e334f1c3c5f7ffec9ef31eee7101957da590dc4da2723f01ac828e18ff8'
@@ -80,9 +80,9 @@ package_system-ilum-base() {
   install -Dm0755 ilum-patch.nu "$pkgdir"/usr/bin/ilum-patch
   install -Dm0644 pacman-hook-ilum-patch.hook "$pkgdir"/usr/share/libalpm/hooks/ilum-patch.hook
 
-  install -Dm0644 pacman.conf.patch "$pkgdir"/usr/share/ilum/patches/pacman.conf.patch
-  install -Dm0644 reflector.conf.patch "$pkgdir"/usr/share/ilum/patches/reflector.conf.patch
-  install -Dm0644 locale.gen.patch "$pkgdir"/usr/share/ilum/patches/locale.gen.patch
+  install -Dm0644 etc-pacman.conf.patch "$pkgdir"/usr/share/ilum/patches/etc-pacman.conf.patch
+  install -Dm0644 etc-xdg-reflector-reflector.conf.patch "$pkgdir"/usr/share/ilum/patches/etc-xdg-reflector-reflector.conf.patch
+  install -Dm0644 etc-locale.gen.patch "$pkgdir"/usr/share/ilum/patches/etc-locale.gen.patch
 }
 
 package_system-ilum-utils() {

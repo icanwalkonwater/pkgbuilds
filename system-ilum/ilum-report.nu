@@ -1,13 +1,16 @@
 #!/usr/bin/env nu
 
 def main [--with-patched] {
+  if not (is-admin) {
+    print $"(ansi rb)ERROR:(ansi reset) Rerun as superuser"
+    exit 1
+  }
+
   ^pacreport --backups --missing-files --unowned-files
   report-modified-backup-files --with-patched=$with_patched
 }
 
 def report-modified-backup-files [--with-patched] {
-  let patched = glob "/usr/share/ilum/patches/*.patch" | path basename | str substring ..-7
-
   let modified = ^pacman -Qii
     | ^jc --pacman
     | from json
@@ -18,7 +21,7 @@ def report-modified-backup-files [--with-patched] {
     | flatten -a
     | where status == "modified"
     | update status {|f|
-        if ($f.file | path basename) in $patched {
+        if ($f.file | as-patch-name | path exists) {
           "patched"
         } else {
           $f.status
@@ -33,6 +36,10 @@ def report-modified-backup-files [--with-patched] {
       print $"  ($f.file)"
     }
   }
+}
+
+def as-patch-name []: string -> string {
+  str trim --left --char="/" | str replace --all "/" "-" | $"/usr/share/ilum/patches/($in).patch"
 }
 
 # vim: set tabstop=2 shiftwidth=2 expandtab :

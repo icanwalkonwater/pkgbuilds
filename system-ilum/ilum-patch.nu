@@ -30,45 +30,50 @@ def "main patch" [
     $targets
   }
 
-  let targets = if ($targets | is-empty) {
-    glob $"($patches_dir)/*.patch" | str substring ..-7
+  # If no target specified, just run all the patches.
+  if ($targets | is-empty) {
+    for $stock_patch in (glob $"($patches_dir)/*.patch") {
+      do-patch $stock_patch --dry-run=$dry_run
+    }
+    return
+  }
+
+  let patches = $targets | each {str trim --left --char=/ | str replace --all "/" "-" | $"($patches_dir)/($in).patch"}
+
+  for $p in $patches {
+    if not ($p | path exists) {
+      error make {msg: $"Patch file ($p | boldify) does not exists !"}
+    }
+
+    do-patch $p --dry-run=$dry_run
+  }
+}
+
+def do-patch [patch_file: string, --dry-run] {
+  let reverse_patch_res = ^patch --dry-run --reverse --force --directory=/ --unified --reject-file=- --strip=1 --input=($patch_file) | complete
+  if $reverse_patch_res.exit_code == 0 {
+    print $"Patch already applied: ($patch_file | boldify)"
+    return
+  }
+
+  if $dry_run {
+    print $"Would apply patch ($patch_file | boldify)"
+    return
+  }
+
+  let patch_res = ^patch --directory=/ --unified --reject-file=- --forward --strip=1 --input=($patch_file) | complete
+  if $patch_res.exit_code == 0 {
+    print $"Patch applied: ($patch_file | boldify)"
   } else {
-    $targets
+    print $"Failed to apply patch: ($patch_file | boldify)"
+    if ($patch_res.stdout | str trim | is-not-empty) {
+      print ""
+      print ($patch_res.stdout | str trim)
+      print ""
+    }
+    print $"(ansi rb)MANUAL INTERVENTION IS REQUIRED(ansi reset)"
   }
-
-  let targets = $targets | each {path basename}
-
-  for target in $targets {
-    let patch = $"($patches_dir)/($target).patch" | path expand
-    if not ($patch | path exists) {
-      error make {msg: $"Patch file ($patch | boldify) does not exists !"}
-    }
-
-    # If applying the patch in reverse works, it means its already applied
-    let reverse_patch_res = ^patch --dry-run --reverse --force --directory=/ --unified --reject-file=- --strip=1 --input=($patch) | complete
-    if $reverse_patch_res.exit_code == 0 {
-      print $"Patch already applied: ($patch | boldify)"
-      continue
-    }
-
-    if $dry_run {
-      print $"Would apply patch ($patch | boldify)"
-      continue
-    }
-
-    let patch_res = ^patch --directory=/ --unified --reject-file=- --forward --strip=1 --input=($patch) | complete
-    if $patch_res.exit_code == 0 {
-      print $"Applied patch: ($patch | boldify)"
-    } else {
-      print $"Failed to apply patch: ($patch | boldify)"
-      if ($patch_res.stdout | str trim | is-not-empty) {
-        print ""
-        print ($patch_res.stdout | str trim)
-        print ""
-      }
-      print $"(ansi rb)MANUAL INTERVENTION IS REQUIRED(ansi reset)"
-    }
-  }
+  exit 1
 }
 
 def main [] {
