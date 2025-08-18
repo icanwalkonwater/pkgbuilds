@@ -1,8 +1,0 @@
-pkgname=ilum-base
-pkgver=0.1.0
-pkgrel=1
-pkgdesc='Base package for barely working system'
-arch=(any)
-group=(ilum)
-
-depends=(base linux linux-firmware neovim nushell)
