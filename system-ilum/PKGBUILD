@@ -67,7 +67,7 @@ package_system-ilum-base() {
     'base' 'linux' 'linux-firmware' 'btrfs-progs'
     'efibootmgr' 'grub' 'os-prober' 'grub-theme-minegrub-world-selection-git'
     # Maintenance
-    'reflector' 'pacman-contrib' 'smartmontools' 'snapper' 'patch'
+    'reflector' 'pacman-contrib' 'smartmontools' 'patch' 'pacutils'
     # AUR
     'base-devel' 'paru'
     # Dotfiles
@@ -79,11 +79,12 @@ package_system-ilum-base() {
     'libva-nvidia-driver' 'libva-utils' 'vulkan-tools'
 
     # Shell
-    'fish' 'nushell' 'starship' 'bat' 'htop' 'nvtop' 'tree' 'sudo' 'git' 'lazygit'
+    'fish' 'nushell' 'starship' 'bat' 'htop' 'nvtop' 'tree' 'sudo' 'git' 'lazygit' 'jq' 'jc'
     'man-db' 'man-pages'
     'neovim' 'fzf' 'ripgrep'
     'zellij' 'fbset' 'fastfetch'
-    'openssh'
+    'openssh' 'sshfs'
+    'unzip'
   )
   install='system-ilum-full.install'
 
@@ -144,14 +145,15 @@ package_system-ilum-full() {
     'feh'
     # Sound
     'pipewire' 'wireplumber' 'pipewire-pulse' 'pavucontrol'
-    # Flatpak
-    'flatpak'
+    # Container stuff
+    'flatpak' 'docker' 'k9s' 'kubectl'
     # Steam
     'steam' 'lib32-nvidia-utils' 'lib32-systemd'
     # Fonts
     'ttf-jetbrains-mono-nerd' 'ttf-liberation'
     # Bit random
-    'nwg-look' 'papirus-icon-theme' 'brightnessctl'
+    'nwg-look' 'papirus-icon-theme' 'brightnessctl' 'wev'
+    'ffmeg'
   )
   install='system-ilum-full.install'
 
