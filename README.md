@@ -2,6 +2,7 @@
 
 Compatible with paru.
 
-- `ilum-base`: dependency group for quickly getting base packages
-- `ilum-disk`: scripts to manage the partitionning and filesystems
-- `ilum-user`: 
+- `system-ilum-skeleton`: no dependencies, just creates some directories
+- `system-ilum-base`: drivers and stuff to have working system without a window manager
+- `system-ilum-utils`: contains `ilum-report` and `ilum-patch` util scripts
+- `system-ilum-full`: full DE setup and goodies
