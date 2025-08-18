@@ -1,7 +1,17 @@
-post_install() {
-  systemctl enable \
-    smartd.service \
+function __do_the_thing() {
+  systemctl enable --now \
     systemd-networkd.service \
+    systemd-resolved.service \
+    btrfs-scrub@-.timer \
+    smartd.service \
     paccache.timer \
     reflector.timer
+}
+
+post_install() {
+  __do_the_thing
+}
+
+post_upgrade() {
+  __do_the_thing
 }
