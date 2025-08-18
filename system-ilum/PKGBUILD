@@ -94,7 +94,7 @@ package_system-ilum-base() {
   install -Dm0644 etc-locale.conf "$pkgdir"/etc/locale.conf
   
   # Network
-  ln -sf ../run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
+  ln -sf ../run/systemd/resolve/stub-resolv.conf "$pkgdir"/etc/resolv.conf
   install -Dm0644 etc-systemd-network-89-ethernet.network "$pkgdir"/etc/systemd/network/89-ethernet.network
 
   install -Dm0700 sudoers.d-allow-sudo-group "$pkgdir"/etc/sudoers.d/allow-sudo-group
