@@ -89,7 +89,7 @@ pkgname = system-ilum-base
 	depends = openssh
 	depends = sshfs
 	depends = unzip
-	depends = imagemagic
+	depends = imagemagick
 	depends = ffmpeg
 
 pkgname = system-ilum-utils

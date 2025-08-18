@@ -87,7 +87,7 @@ package_system-ilum-base() {
     'zellij' 'fbset' 'fastfetch'
     'openssh' 'sshfs'
     'unzip'
-    'imagemagic' 'ffmpeg'
+    'imagemagick' 'ffmpeg'
   )
   install='system-ilum-full.install'
 
