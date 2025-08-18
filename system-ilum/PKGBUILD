@@ -1,6 +1,6 @@
 pkgbase=system-ilum
 pkgname=(system-ilum-skeleton system-ilum-base system-ilum-utils system-ilum-full)
-pkgver=1.3.0
+pkgver=1.3.1
 pkgrel=1
 
 pkgdesc='System configuration'
@@ -87,6 +87,7 @@ package_system-ilum-base() {
     'zellij' 'fbset' 'fastfetch'
     'openssh' 'sshfs'
     'unzip'
+    'imagemagic' 'ffmpeg'
   )
   install='system-ilum-full.install'
 
@@ -140,25 +141,18 @@ package_system-ilum-full() {
     'waybar'
     # Notification daemon
     'dunst'
-    # Terminal emulator
-    'alacritty'
-    # Application launcher
-    'rofi-wayland'
-    # File manager
-    'ranger'
-    # Image viewer
-    'feh'
+    # Base apps
+    'rofi-wayland' 'alacritty' 'ranger' 'feh' 'mpv'
     # Sound
     'pipewire' 'wireplumber' 'pipewire-pulse' 'pavucontrol'
-    # Container stuff
-    'flatpak' 'docker' 'k9s' 'kubectl'
+    # External apps stuff
+    'nix' 'flatpak' 'docker' 'k9s' 'kubectl'
     # Steam
     'steam' 'lib32-nvidia-utils' 'lib32-systemd'
     # Fonts
     'ttf-jetbrains-mono-nerd' 'ttf-liberation'
     # Bit random
     'nwg-look' 'papirus-icon-theme' 'brightnessctl' 'wev'
-    'ffmpeg'
   )
   install='system-ilum-full.install'
 
