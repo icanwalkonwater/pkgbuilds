@@ -72,8 +72,8 @@ def do-patch [patch_file: string, --dry-run] {
       print ""
     }
     print $"(ansi rb)MANUAL INTERVENTION IS REQUIRED(ansi reset)"
+    exit 1
   }
-  exit 1
 }
 
 def main [] {
