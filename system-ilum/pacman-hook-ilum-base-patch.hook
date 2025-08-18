@@ -5,7 +5,6 @@ Type = Path
 Target = /etc/pacman.conf
 Target = /etc/xdg/reflector/reflector.conf
 Target = /etc/locale.gen
-Target = /etc/ly/config.ini
 Target = /etc/default/grub
 Target = /etc/mkinitcpio.conf
 

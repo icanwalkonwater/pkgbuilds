@@ -13,7 +13,8 @@ source=(
   'ilum-patch.nu'
   'sudoers.d-allow-sudo-group'
   'pacreport.conf'
-  'pacman-hook-ilum-patch.hook'
+  'pacman-hook-ilum-base-patch.hook'
+  'pacman-hook-ilum-full-patch.hook'
   'etc-pacman.conf.patch'
   'etc-xdg-reflector-reflector.conf.patch'
   'etc-locale.gen.patch'
@@ -26,7 +27,8 @@ sha256sums=(
   '2fa2d78fd517bd8721e23b0b5c6ebf9b74b4e3a85a77569cdca6855816bfd261'
   '81576086c069a2c098b510553a20c6b44b42c954d7d359991ec90db475142486'
   '59badeaff799f030f62a24e749168adc02cd0e232f145e5f288579a6234e40b2'
-  '320ff78aa2297a482c193d0d14b1f6a3ba3fdf26e1c19d6dbed95c974901de6e'
+  '41cf16a331f1b3cf91f22d66df7be28ffe445747ca14ca20a2fa3ce2f1ddd024'
+  '648bfb7917803a234c8b7413fd771589e40646e2d17e31bc5d2f489e6355f20f'
   'b69640be1aa0f148678e969a675fb29f166e13d74e779c8f4d025a42a2ce3504'
   '9d676d4e2cd9acaead7b7156c8bb25286fbeac619b84739e9e73406049402115'
   'e9bf5423102855dc6f3eed8daff2f627bd8b1d7e490bbcbb336c08a72168b1cf'
@@ -89,13 +91,12 @@ package_system-ilum-base() {
 
   # Patch setup.
   install -Dm0755 ilum-patch.nu "$pkgdir"/usr/bin/ilum-patch
-  install -Dm0644 pacman-hook-ilum-patch.hook "$pkgdir"/usr/share/libalpm/hooks/ilum-patch.hook
+  install -Dm0644 pacman-hook-ilum-base-patch.hook "$pkgdir"/usr/share/libalpm/hooks/ilum-base-patch.hook
 
   # Patches
   install -Dm0644 etc-pacman.conf.patch "$pkgdir"/usr/share/ilum/patches/etc-pacman.conf.patch
   install -Dm0644 etc-xdg-reflector-reflector.conf.patch "$pkgdir"/usr/share/ilum/patches/etc-xdg-reflector-reflector.conf.patch
   install -Dm0644 etc-locale.gen.patch "$pkgdir"/usr/share/ilum/patches/etc-locale.gen.patch
-  install -Dm0644 etc-ly-config.ini.patch "$pkgdir"/usr/share/ilum/patches/etc-ly-config.ini.patch
   install -Dm0644 etc-default-grub.patch "$pkgdir"/usr/share/ilum/patches/etc-default-grub.patch
   install -Dm0644 etc-mkinitcpio.conf.patch "$pkgdir"/usr/share/ilum/patches/etc-mkinitcpio.conf.patch
 }
@@ -146,4 +147,8 @@ package_system-ilum-full() {
     'nwg-look' 'papirus-icon-theme' 'brightnessctl'
   )
   install='system-ilum-full.install'
+
+  # Additionnal patches
+  install -Dm0644 pacman-hook-ilum-full-patch.hook "$pkgdir"/usr/share/libalpm/hooks/ilum-full-patch.hook
+  install -Dm0644 etc-ly-config.ini.patch "$pkgdir"/usr/share/ilum/patches/etc-ly-config.ini.patch
 }
