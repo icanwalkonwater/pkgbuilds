@@ -134,4 +134,4 @@ pkgname = system-ilum-full
 	depends = papirus-icon-theme
 	depends = brightnessctl
 	depends = wev
-	depends = ffmeg
+	depends = ffmpeg

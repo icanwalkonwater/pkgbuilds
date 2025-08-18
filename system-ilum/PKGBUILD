@@ -158,7 +158,7 @@ package_system-ilum-full() {
     'ttf-jetbrains-mono-nerd' 'ttf-liberation'
     # Bit random
     'nwg-look' 'papirus-icon-theme' 'brightnessctl' 'wev'
-    'ffmeg'
+    'ffmpeg'
   )
   install='system-ilum-full.install'
 
