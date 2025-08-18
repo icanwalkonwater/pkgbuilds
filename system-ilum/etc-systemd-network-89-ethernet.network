@@ -1,0 +1,9 @@
+# This config file is copied from the example bundled with systemd
+
+# Enable DHCPv4 and DHCPv6 on all physical ethernet links
+[Match]
+Kind=!*
+Type=ether
+
+[Network]
+DHCP=yes

@@ -13,6 +13,7 @@ source=(
   'etc-locale.conf'
   'ilum-report.nu'
   'ilum-patch.nu'
+  'etc-systemd-network-89-ethernet.network'
   'sudoers.d-allow-sudo-group'
   'pacreport.conf'
   'pacman-hook-ilum-base-patch.hook'
@@ -28,7 +29,8 @@ sha256sums=(
   '2c09b43e51de87a82ff5eeb1c599ce25800b8d34810f14044bf73644e9f7b742'
   '033252d5100cbb0028d7c15e075f63e4eb5ff7f1a923cd5cb547bcfd6b024f5b'
   'c4511e0c0d28a5cf862631f0ce72febe93adf6ffba2f7851254356191d76c3d2'
-  '2fa2d78fd517bd8721e23b0b5c6ebf9b74b4e3a85a77569cdca6855816bfd261'
+  '80a75366a6c16ae6fd44988cbffecfd185b3b7db85b5455e76df4781f34c9d51'
+  '23dd289c12332bb8821363bcdd2d593b3171f1d5e2c5d9b9f888dbe9e981e3d4'
   '81576086c069a2c098b510553a20c6b44b42c954d7d359991ec90db475142486'
   '59badeaff799f030f62a24e749168adc02cd0e232f145e5f288579a6234e40b2'
   '41cf16a331f1b3cf91f22d66df7be28ffe445747ca14ca20a2fa3ce2f1ddd024'
@@ -91,6 +93,9 @@ package_system-ilum-base() {
   install -Dm0644 etc-vconsole.conf "$pkgdir"/etc/vconsole.conf
   install -Dm0644 etc-locale.conf "$pkgdir"/etc/locale.conf
   
+  # Network
+  ln -sf ../run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
+  install -Dm0644 etc-systemd-network-89-ethernet.network "$pkgdir"/etc/systemd/network/89-ethernet.network
 
   install -Dm0700 sudoers.d-allow-sudo-group "$pkgdir"/etc/sudoers.d/allow-sudo-group
   chmod 750 "$pkgdir"/etc/sudoers.d/
