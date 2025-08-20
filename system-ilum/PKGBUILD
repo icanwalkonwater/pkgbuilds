@@ -16,7 +16,7 @@ source=(
   'etc-systemd-network-89-ethernet.network'
   'sudoers.d-allow-sudo-group'
   'etc-makepkg.d-parallel.conf'
-  'pacreport.conf'
+  'etc-pacreport.conf'
   'pacman-hook-ilum-base-patch.hook'
   'pacman-hook-ilum-full-patch.hook'
   'etc-pacman.conf.patch'
@@ -33,6 +33,7 @@ sha256sums=(
   '80a75366a6c16ae6fd44988cbffecfd185b3b7db85b5455e76df4781f34c9d51'
   '23dd289c12332bb8821363bcdd2d593b3171f1d5e2c5d9b9f888dbe9e981e3d4'
   '81576086c069a2c098b510553a20c6b44b42c954d7d359991ec90db475142486'
+  '6804efe7de2a1b4cebbd36d4d7c92a1b43bffc1688c98f642bfd53303bfb1f3c'
   '59badeaff799f030f62a24e749168adc02cd0e232f145e5f288579a6234e40b2'
   '41cf16a331f1b3cf91f22d66df7be28ffe445747ca14ca20a2fa3ce2f1ddd024'
   '648bfb7917803a234c8b7413fd771589e40646e2d17e31bc5d2f489e6355f20f'
@@ -102,8 +103,8 @@ package_system-ilum-base() {
   install -Dm0700 sudoers.d-allow-sudo-group "$pkgdir"/etc/sudoers.d/allow-sudo-group
   chmod 750 "$pkgdir"/etc/sudoers.d/
 
-  install -Dm0644 pacreport.conf "$pkgdir"/etc/pacreport.conf
   install -Dm0644 etc-makepkg.d-parallel.conf "$pkgdir"/etc/makepkg.conf.d/99-parallel.conf
+  install -Dm0644 etc-pacreport.conf "$pkgdir"/etc/pacreport.conf
 
   # Patch setup.
   install -Dm0755 ilum-patch.nu "$pkgdir"/usr/bin/ilum-patch
