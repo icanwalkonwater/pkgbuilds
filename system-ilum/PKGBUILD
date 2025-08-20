@@ -153,6 +153,7 @@ package_system-ilum-full() {
     'ttf-jetbrains-mono-nerd' 'ttf-liberation'
     # Bit random
     'nwg-look' 'papirus-icon-theme' 'brightnessctl' 'wev'
+    'vulkan-caps-viewer-wayland'
   )
   install='system-ilum-full.install'
 
