@@ -15,6 +15,7 @@ source=(
   'ilum-patch.nu'
   'etc-systemd-network-89-ethernet.network'
   'sudoers.d-allow-sudo-group'
+  'etc-makepkg.d-parallel.conf'
   'pacreport.conf'
   'pacman-hook-ilum-base-patch.hook'
   'pacman-hook-ilum-full-patch.hook'
@@ -102,6 +103,7 @@ package_system-ilum-base() {
   chmod 750 "$pkgdir"/etc/sudoers.d/
 
   install -Dm0644 pacreport.conf "$pkgdir"/etc/pacreport.conf
+  install -Dm0644 etc-makepkg.d-parallel.conf "$pkgdir"/etc/makepkg.conf.d/99-parallel.conf
 
   # Patch setup.
   install -Dm0755 ilum-patch.nu "$pkgdir"/usr/bin/ilum-patch
