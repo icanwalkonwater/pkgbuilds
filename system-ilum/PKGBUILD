@@ -1,6 +1,6 @@
 pkgbase=system-ilum
 pkgname=(system-ilum-skeleton system-ilum-base system-ilum-utils system-ilum-full)
-pkgver=1.3.2
+pkgver=1.3.3
 pkgrel=1
 
 pkgdesc='System configuration'
@@ -9,6 +9,7 @@ arch=('any')
 license=('MIT')
 
 source=(
+  'etc-hostname'
   'etc-vconsole.conf'
   'etc-locale.conf'
   'ilum-report.nu'
@@ -27,6 +28,7 @@ source=(
   'etc-mkinitcpio.conf.patch'
 )
 sha256sums=(
+  '5a93eced3b28435ffbd7ac8450c4a3dedcb7d49f793c81a3afe68dc45c49d35a'
   '2c09b43e51de87a82ff5eeb1c599ce25800b8d34810f14044bf73644e9f7b742'
   '033252d5100cbb0028d7c15e075f63e4eb5ff7f1a923cd5cb547bcfd6b024f5b'
   'c4511e0c0d28a5cf862631f0ce72febe93adf6ffba2f7851254356191d76c3d2'
@@ -93,6 +95,8 @@ package_system-ilum-base() {
   )
   install='system-ilum-full.install'
 
+  install -Dm0644 etc-hostname "$pkgdir"/etc/hostname
+  ln -sf ../usr/share/zoneinfo/Europe/Paris "$pkgdir"/localtime
   install -Dm0644 etc-vconsole.conf "$pkgdir"/etc/vconsole.conf
   install -Dm0644 etc-locale.conf "$pkgdir"/etc/locale.conf
   
