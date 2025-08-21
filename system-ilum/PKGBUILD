@@ -52,7 +52,7 @@ package_system-ilum-base() {
     # Skeleton
     'system-ilum-skeleton'
     # Needed to boot
-    'base' 'linux' 'linux-firmware' 'btrfs-progs'
+    'base' 'linux' 'linux-firmware' 'btrfs-progs' 'dosfstools'
     'efibootmgr' 'grub' 'os-prober' 'grub-theme-minegrub-world-selection-git'
     # Maintenance
     'reflector' 'pacman-contrib' 'smartmontools' 'patch' 'pacutils'

@@ -2,6 +2,7 @@ function __do_the_thing() {
   systemctl enable --now \
     systemd-networkd.service \
     systemd-resolved.service \
+    systemd-timesyncd.service \
     btrfs-scrub@-.timer \
     smartd.service \
     paccache.timer \
