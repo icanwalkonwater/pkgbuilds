@@ -22,8 +22,10 @@ def "main install" [
 
   print "INFO: Installing theme..."
   let theme_target_path = $"($efi_directory)/grub/themes/($theme)"
-  mkdir $theme_target_path
-  cp --recursive --progress $theme_path $theme_target_path
+  if ($theme_target_path | path exists) {
+    rm -rfp $theme_target_path
+  }
+  cp --recursive --verbose --progress $theme_path $theme_target_path
 
   print "INFO: Generating config..."
   ^grub-mkconfig -o $"($efi_directory)/grub/grub.cfg"
