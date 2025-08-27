@@ -1,6 +1,6 @@
 pkgbase=system-ilum
 pkgname=(system-ilum-skeleton system-ilum-base system-ilum-utils system-ilum-full)
-pkgver=1.3.3
+pkgver=1.3.4
 pkgrel=1
 
 pkgdesc='System configuration'
@@ -84,8 +84,8 @@ package_system-ilum-base() {
   install -Dm0644 etc-locale.conf "$pkgdir"/etc/locale.conf
   
   # Network
-  ln -sf ../run/systemd/resolve/stub-resolv.conf "$pkgdir"/etc/resolv.conf
   install -Dm0644 etc-systemd-network-89-ethernet.network "$pkgdir"/etc/systemd/network/89-ethernet.network
+  # stub resolve.conf is done in the .install
 
   # Sudo
   install -Dm0700 sudoers.d-allow-sudo-group "$pkgdir"/etc/sudoers.d/allow-sudo-group

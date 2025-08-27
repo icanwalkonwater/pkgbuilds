@@ -1,6 +1,6 @@
 pkgbase = system-ilum
 	pkgdesc = System configuration
-	pkgver = 1.3.3
+	pkgver = 1.3.4
 	pkgrel = 1
 	url = https://github.com/icanwalkonwater/pkgbuilds
 	arch = any
@@ -53,6 +53,7 @@ pkgname = system-ilum-base
 	depends = linux
 	depends = linux-firmware
 	depends = btrfs-progs
+	depends = dosfstools
 	depends = efibootmgr
 	depends = grub
 	depends = os-prober
