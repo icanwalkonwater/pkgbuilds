@@ -21,7 +21,7 @@ def "main install" [
   ^grub-install --target=x86_64-efi --efi-directory=($efi_directory) --bootloader-id=GRUB --removable
 
   print "INFO: Installing theme..."
-  let theme_target_path = $"($efi_directory)/boot/grub/themes/($theme)"
+  let theme_target_path = $"($efi_directory)/grub/themes/($theme)"
   mkdir $theme_target_path
   cp --recursive --progress $theme_path $theme_target_path
 
