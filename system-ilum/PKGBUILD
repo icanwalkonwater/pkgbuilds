@@ -1,6 +1,6 @@
 pkgbase=system-ilum
 pkgname=(system-ilum-skeleton system-ilum-base system-ilum-utils system-ilum-full)
-pkgver=1.3.6
+pkgver=1.3.7
 pkgrel=1
 
 pkgdesc='System configuration'
@@ -81,6 +81,7 @@ package_system-ilum-base() {
 
   # Basic stuff
   install -Dm0644 etc-hostname "$pkgdir"/etc/hostname
+  ln -sf ../usr/share/zoneinfo/Europe/Paris "$pkgdir"/etc/localtime
   install -Dm0644 etc-vconsole.conf "$pkgdir"/etc/vconsole.conf
   install -Dm0644 etc-locale.conf "$pkgdir"/etc/locale.conf
   

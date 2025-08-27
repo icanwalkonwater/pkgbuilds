@@ -1,8 +1,4 @@
 function __do_the_thing() {
-  echo "Setting up local time to Europe/Paris"
-  ln -sf ../usr/share/zoneinfo/Europe/Paris "$pkgdir"/localtime
-  hwclock --systohc
-
   echo "Enabling networkd resolved timesyncd btrfs-scrub smartd paccache reflector"
   systemctl enable --now \
     systemd-networkd.service \
