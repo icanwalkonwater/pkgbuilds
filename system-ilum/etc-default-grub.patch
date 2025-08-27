@@ -20,3 +20,9 @@ diff --git a/etc/default/grub b/etc/default/grub
  
  # Uncomment to get a beep at GRUB start
  #GRUB_INIT_TUNE="480 440 1"
+@@ -60,4 +61,4 @@ GRUB_DISABLE_RECOVERY=true
+ # documentation on GRUB_DISABLE_OS_PROBER, if still want to enable this
+ # functionality install os-prober and uncomment to detect and include other
+ # operating systems.
+-#GRUB_DISABLE_OS_PROBER=false
++GRUB_DISABLE_OS_PROBER=false
