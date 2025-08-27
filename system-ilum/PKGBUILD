@@ -1,6 +1,6 @@
 pkgbase=system-ilum
 pkgname=(system-ilum-skeleton system-ilum-base system-ilum-utils system-ilum-full)
-pkgver=1.3.5
+pkgver=1.3.6
 pkgrel=1
 
 pkgdesc='System configuration'
@@ -42,6 +42,8 @@ package_system-ilum-skeleton() {
   mkdir -p "$pkgdir"/mnt/rootfs
   # Mountpoint for big SSD
   mkdir -p "$pkgdir"/mnt/fastass
+  # Mountpoint for homelab sshfs
+  mkdir -p -m 777 "$pkgdir"/mnt/lucastrunk
   # Mountpoint for random stuff like usb sticks
   mkdir -p "$pkgdir"/mnt/stuff
 }
@@ -79,7 +81,6 @@ package_system-ilum-base() {
 
   # Basic stuff
   install -Dm0644 etc-hostname "$pkgdir"/etc/hostname
-  ln -sf ../usr/share/zoneinfo/Europe/Paris "$pkgdir"/localtime
   install -Dm0644 etc-vconsole.conf "$pkgdir"/etc/vconsole.conf
   install -Dm0644 etc-locale.conf "$pkgdir"/etc/locale.conf
   
