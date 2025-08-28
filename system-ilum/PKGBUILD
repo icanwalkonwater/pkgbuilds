@@ -1,6 +1,6 @@
 pkgbase=system-ilum
 pkgname=(system-ilum-skeleton system-ilum-base system-ilum-utils system-ilum-full)
-pkgver=1.3.10
+pkgver=1.3.11
 pkgrel=1
 
 pkgdesc='System configuration'

@@ -1,4 +1,6 @@
 post_install() {
   systemctl enable \
+    nix-daemon \
+    docker \
     ly.service
 }
