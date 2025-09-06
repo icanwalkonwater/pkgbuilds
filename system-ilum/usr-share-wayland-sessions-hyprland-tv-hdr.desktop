@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Hyprland (Gaming, uwsm-managed)
+Comment=An intelligent dynamic tiling Wayland compositor
+Exec=uwsm start -- Hyprland --config %h/.config/hypr/hyprland-tv-hdr.conf
+TryExec=uwsm
+DesktopNames=Hyprland
+Type=Application

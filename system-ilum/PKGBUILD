@@ -1,6 +1,6 @@
 pkgbase=system-ilum
 pkgname=(system-ilum-skeleton system-ilum-base system-ilum-utils system-ilum-full)
-pkgver=1.3.11
+pkgver=1.4.0
 pkgrel=1
 
 pkgdesc='System configuration'
@@ -27,6 +27,8 @@ source=(
   'etc-ly-config.ini.patch'
   'etc-default-grub.patch'
   'etc-mkinitcpio.conf.patch'
+  'usr-share-wayland-sessions-hyprland-gaming.desktop'
+  'usr-share-wayland-sessions-hyprland-tv-hdr.desktop'
 )
 
 package_system-ilum-skeleton() {
@@ -57,7 +59,7 @@ package_system-ilum-base() {
     'base' 'linux' 'linux-firmware' 'btrfs-progs' 'dosfstools'
     'efibootmgr' 'grub' 'os-prober'
     # Maintenance
-    'reflector' 'pacman-contrib' 'smartmontools' 'patch' 'pacutils'
+    'reflector' 'pacman-contrib' 'smartmontools' 'patch' 'pacutils' 'powertop'
     # AUR
     'base-devel' 'paru'
     # Dotfiles
@@ -141,7 +143,7 @@ package_system-ilum-full() {
     # Notification daemon
     'dunst'
     # Base apps
-    'rofi-wayland' 'alacritty' 'ranger' 'feh' 'mpv'
+    'rofi-wayland' 'alacritty' 'ranger' 'feh' 'mpv' 'firefox'
     # Sound
     'pipewire' 'wireplumber' 'pipewire-pulse' 'pavucontrol'
     # External apps stuff
@@ -151,7 +153,7 @@ package_system-ilum-full() {
     # Fonts
     'ttf-jetbrains-mono-nerd' 'ttf-liberation'
     # Bit random
-    'nwg-look' 'papirus-icon-theme' 'brightnessctl' 'wev'
+    'nwg-look' 'papirus-icon-theme' 'brightnessctl' 'wev' 'gotop'
     'vulkan-caps-viewer-wayland'
   )
   install='system-ilum-full.install'
@@ -159,8 +161,11 @@ package_system-ilum-full() {
   # Additionnal patches
   install -Dm0644 pacman-hook-ilum-full-patch.hook "$pkgdir"/usr/share/libalpm/hooks/ilum-full-patch.hook
   install -Dm0644 etc-ly-config.ini.patch "$pkgdir"/usr/share/ilum/patches/etc-ly-config.ini.patch
-}
 
+  # Install custom hyprland sessions
+  install -Dm0644 usr-share-wayland-sessions-hyprland-gaming.desktop "$pkgdir"/usr/share/wayland-sessions/hyprland-gaming.desktop
+  install -Dm0644 usr-share-wayland-sessions-hyprland-tv-hdr.desktop "$pkgdir"/usr/share/wayland-sessions/hyprland-tv-hdr.desktop
+}
 sha256sums=('5a93eced3b28435ffbd7ac8450c4a3dedcb7d49f793c81a3afe68dc45c49d35a'
             '2c09b43e51de87a82ff5eeb1c599ce25800b8d34810f14044bf73644e9f7b742'
             '033252d5100cbb0028d7c15e075f63e4eb5ff7f1a923cd5cb547bcfd6b024f5b'
@@ -178,4 +183,6 @@ sha256sums=('5a93eced3b28435ffbd7ac8450c4a3dedcb7d49f793c81a3afe68dc45c49d35a'
             'e9bf5423102855dc6f3eed8daff2f627bd8b1d7e490bbcbb336c08a72168b1cf'
             '8d52bb79c7419e979db81e480ad36a93cdf6bb05f4c694226d37512fb66ac5a7'
             '7974e2094b56af86fbf9338a963a8e23bee694ef42937a3661ea9bf82abd81cb'
-            'aae18e369ed76e0a1aaeb7c333349b7dfb89923dc961c9fbf493a356b5da0059')
+            'aae18e369ed76e0a1aaeb7c333349b7dfb89923dc961c9fbf493a356b5da0059'
+            '17244404789e2520abdc9129680e7ad2b32d7593c0c3bd5497147e78a7a1269b'
+            'f352f7ac23b1c41342aa1e07922c6b2d093b9fea2a4aa3bfc26cc4dc6e4bc1bf')
