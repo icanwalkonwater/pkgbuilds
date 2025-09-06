@@ -1,6 +1,6 @@
 pkgbase=system-ilum
 pkgname=(system-ilum-skeleton system-ilum-base system-ilum-utils system-ilum-full)
-pkgver=1.4.0
+pkgver=1.4.1
 pkgrel=1
 
 pkgdesc='System configuration'
@@ -166,6 +166,7 @@ package_system-ilum-full() {
   install -Dm0644 usr-share-wayland-sessions-hyprland-gaming.desktop "$pkgdir"/usr/share/wayland-sessions/hyprland-gaming.desktop
   install -Dm0644 usr-share-wayland-sessions-hyprland-tv-hdr.desktop "$pkgdir"/usr/share/wayland-sessions/hyprland-tv-hdr.desktop
 }
+
 sha256sums=('5a93eced3b28435ffbd7ac8450c4a3dedcb7d49f793c81a3afe68dc45c49d35a'
             '2c09b43e51de87a82ff5eeb1c599ce25800b8d34810f14044bf73644e9f7b742'
             '033252d5100cbb0028d7c15e075f63e4eb5ff7f1a923cd5cb547bcfd6b024f5b'
@@ -185,4 +186,4 @@ sha256sums=('5a93eced3b28435ffbd7ac8450c4a3dedcb7d49f793c81a3afe68dc45c49d35a'
             '7974e2094b56af86fbf9338a963a8e23bee694ef42937a3661ea9bf82abd81cb'
             'aae18e369ed76e0a1aaeb7c333349b7dfb89923dc961c9fbf493a356b5da0059'
             '17244404789e2520abdc9129680e7ad2b32d7593c0c3bd5497147e78a7a1269b'
-            'f352f7ac23b1c41342aa1e07922c6b2d093b9fea2a4aa3bfc26cc4dc6e4bc1bf')
+            'aa8b0705dcca3d4dd158fa9194340baa0af0e7aa4831f2efd1bf14089ea0c9c7')

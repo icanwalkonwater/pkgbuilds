@@ -1,6 +1,6 @@
 pkgbase = system-ilum
 	pkgdesc = System configuration
-	pkgver = 1.4.0
+	pkgver = 1.4.1
 	pkgrel = 1
 	url = https://github.com/icanwalkonwater/pkgbuilds
 	arch = any
@@ -44,7 +44,7 @@ pkgbase = system-ilum
 	sha256sums = 7974e2094b56af86fbf9338a963a8e23bee694ef42937a3661ea9bf82abd81cb
 	sha256sums = aae18e369ed76e0a1aaeb7c333349b7dfb89923dc961c9fbf493a356b5da0059
 	sha256sums = 17244404789e2520abdc9129680e7ad2b32d7593c0c3bd5497147e78a7a1269b
-	sha256sums = f352f7ac23b1c41342aa1e07922c6b2d093b9fea2a4aa3bfc26cc4dc6e4bc1bf
+	sha256sums = aa8b0705dcca3d4dd158fa9194340baa0af0e7aa4831f2efd1bf14089ea0c9c7
 
 pkgname = system-ilum-skeleton
 	pkgdesc = Skeleton for ilum
